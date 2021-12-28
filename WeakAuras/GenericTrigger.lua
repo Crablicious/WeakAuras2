@@ -1598,12 +1598,14 @@ do
     if(sourceGUID == selfGUID) then
       if event == "SPELL_EXTRA_ATTACKS" then
         skipNextAttack = ts
-        skipNextAttackCount = select(4, ...)
+        skipNextAttackCount = (skipNextAttackCount or 0) + select(4, ...)
       elseif(event == "SWING_DAMAGE" or event == "SWING_MISSED") then
-        if tonumber(skipNextAttack) and (ts - skipNextAttack) < 0.04 and tonumber(skipNextAttackCount) then
-          if skipNextAttackCount > 0 then
+        if tonumber(skipNextAttack) and tonumber(skipNextAttackCount) then
+          if (ts - skipNextAttack) < 0.04 and skipNextAttackCount > 0 then
             skipNextAttackCount = skipNextAttackCount - 1
             return
+          else
+            skipNextAttackCount = nil
           end
         end
         local isOffHand = select(event == "SWING_DAMAGE" and 10 or 2, ...);
