@@ -1593,6 +1593,18 @@ do
     end
   end
 
+  local function skipNextAttackReset(ts)
+     if tonumber(skipNextAttack) and tonumber(skipNextAttackCount) then
+        if (ts - skipNextAttack) < 0.04 and skipNextAttackCount > 0 then
+           skipNextAttackCount = skipNextAttackCount - 1
+           return true
+        else
+           skipNextAttackCount = nil
+        end
+     end
+     return false
+  end
+
   local function swingTimerCLEUCheck(ts, event, _, sourceGUID, _, _, _, destGUID, _, _, _, ...)
     Private.StartProfileSystem("generictrigger swing");
     if(sourceGUID == selfGUID) then
@@ -1600,14 +1612,10 @@ do
         skipNextAttack = ts
         skipNextAttackCount = (skipNextAttackCount or 0) + select(4, ...)
       elseif(event == "SWING_DAMAGE" or event == "SWING_MISSED") then
-        if tonumber(skipNextAttack) and tonumber(skipNextAttackCount) then
-          if (ts - skipNextAttack) < 0.04 and skipNextAttackCount > 0 then
-            skipNextAttackCount = skipNextAttackCount - 1
-            return
-          else
-            skipNextAttackCount = nil
-          end
+        if skipNextAttackReset(ts) then
+           return
         end
+
         local isOffHand = select(event == "SWING_DAMAGE" and 10 or 2, ...);
         if not isOffHand then
           swingStart("main")
@@ -1615,6 +1623,15 @@ do
           swingStart("off")
         end
         swingTriggerUpdate()
+      elseif event == "SPELL_CAST_SUCCESS" then
+         local spell_id = select(1, ...)
+         if Private.auto_attack_modifier_spells[spell_id] then
+            if skipNextAttackReset(ts) then
+               return
+            end
+            swingStart("main")
+            swingTriggerUpdate()
+         end
       end
     elseif (destGUID == selfGUID and (... == "PARRY" or select(4, ...) == "PARRY")) then
       if (lastSwingMain) then

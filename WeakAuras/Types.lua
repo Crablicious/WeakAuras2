@@ -3278,6 +3278,8 @@ Private.noreset_swing_spells = {
   --35474 Drums of Panic DO reset the swing timer, do not add
 }
 
+Private.auto_attack_modifier_spells = {}
+
 Private.item_weapon_types = {}
 
 local skippedWeaponTypes = {}
@@ -3478,8 +3480,6 @@ if WeakAuras.IsBCC() then
 
   local reset_swing_spell_list = {
     1464, 8820, 11604, 11605, 25241, 25242, -- Slam
-    78, 284, 285, 1608, 11564, 11565, 11566, 11567, 25286, 29707, 30324, -- Heroic Strike
-    845, 7369, 11608, 11609, 20569, 25231, -- Cleave
     2973, 14260, 14261, 14262, 14263, 14264, 14265, 14266, 27014, -- Raptor Strike
     6807, 6808, 6809, 8972, 9745, 9880, 9881, 26996, -- Maul
     20549, -- War Stomp
@@ -3502,5 +3502,13 @@ if WeakAuras.IsBCC() then
 
   for _, spellid in ipairs(reset_ranged_swing_spell_list) do
     Private.reset_ranged_swing_spells[spellid] = true
+  end
+
+  local auto_attack_modifier_spell_list = {
+    78, 284, 285, 1608, 11564, 11565, 11566, 11567, 25286, 29707, 30324, -- Heroic Strike
+    845, 7369, 11608, 11609, 20569, 25231, -- Cleave
+  }
+  for _, spellid in ipairs(auto_attack_modifier_spell_list) do
+    Private.auto_attack_modifier_spells[spellid] = true
   end
 end
